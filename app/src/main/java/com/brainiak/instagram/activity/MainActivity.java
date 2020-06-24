@@ -1,8 +1,10 @@
-package com.brainiak.instagram;
+package com.brainiak.instagram.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.brainiak.instagram.R;
 
 public class MainActivity extends AppCompatActivity {
 
