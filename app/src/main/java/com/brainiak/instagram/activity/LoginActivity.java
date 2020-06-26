@@ -32,7 +32,8 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-       inicializarComponentes();
+        verificarUsuarioLogado();
+        inicializarComponentes();
 
         //Login do usuario
         progressBar.setVisibility( View.GONE);
@@ -61,7 +62,11 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void verificarUsuarioLogado(){
-        
+        autenticacao = ConfiguracaoFirebase.getFirebaseAutenticacao();
+        if( autenticacao.getCurrentUser() !=null){
+            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+            finish();
+        }
     }
 
     public void validarLogin( Usuario usuario ){
