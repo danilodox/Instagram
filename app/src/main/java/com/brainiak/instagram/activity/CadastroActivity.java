@@ -35,12 +35,14 @@ public class CadastroActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cadastro);
 
+
         inicializarComponentes();
 
         //cadastrar usuario
 
         progressBar.setVisibility(View.GONE);
-        botaoCadastrar.setOnClickListener(new View.OnClickListener() {
+
+       botaoCadastrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -77,7 +79,9 @@ public class CadastroActivity extends AppCompatActivity {
         campoEmail  =findViewById(R.id.editCadastroEmail);
         campoSenha  =findViewById(R.id.editCadastroSenha);
         botaoCadastrar  =findViewById(R.id.buttonCadastrar);
-        progressBar  =findViewById(R.id.progressCadastro);
+        progressBar  =findViewById(R.id.progressBar);
+
+        campoNome.requestFocus();
     }
 
     public void cadastrarUsuario(Usuario usuario){

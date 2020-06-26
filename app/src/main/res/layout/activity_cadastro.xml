@@ -9,11 +9,9 @@
 
     <EditText
         android:id="@+id/editCadastroSenha"
-        android:layout_width="0dp"
+        android:layout_width="363dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="24dp"
         android:background="@drawable/background_caixa_texto"
         android:ems="10"
         android:hint="Senha"
@@ -30,7 +28,7 @@
         android:id="@+id/imageView"
         android:layout_width="200dp"
         android:layout_height="60dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintBottom_toTopOf="@+id/editCadastroNome"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -40,11 +38,9 @@
 
     <EditText
         android:id="@+id/editCadastroEmail"
-        android:layout_width="0dp"
+        android:layout_width="363dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="24dp"
         android:background="@drawable/background_caixa_texto"
         android:ems="10"
         android:hint="E-mail"
@@ -59,10 +55,8 @@
 
     <EditText
         android:id="@+id/editCadastroNome"
-        android:layout_width="0dp"
+        android:layout_width="363dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
         android:background="@drawable/background_caixa_texto"
         android:ems="10"
         android:hint="Nome"
@@ -77,26 +71,22 @@
 
     <Button
         android:id="@+id/buttonCadastrar"
-        android:layout_width="0dp"
+        android:layout_width="363dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="24dp"
         android:background="@drawable/background_botao"
         android:text="Cadastrar"
         android:textColor="@android:color/white"
-        app:layout_constraintBottom_toTopOf="@+id/progressCadastro"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editCadastroSenha" />
 
     <ProgressBar
-        android:id="@+id/progressCadastro"
+        android:id="@+id/progressBar"
         style="?android:attr/progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
-        android:layout_marginTop="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
