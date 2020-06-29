@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         //configuracao de objetos
-        autenticacao = ConfiguracaoFirebase.getFirebaseAutenticacao()
+        autenticacao = ConfiguracaoFirebase.getFirebaseAutenticacao();
 
 
 
