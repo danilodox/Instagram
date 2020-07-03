@@ -31,8 +31,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Configura toolbar
         Toolbar toolbar = findViewById(R.id.toolbarPrincipal);
         toolbar.setTitle("Instagram");
+
 
 
         //configuracao de objetos
