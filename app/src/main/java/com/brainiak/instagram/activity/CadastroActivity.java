@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import com.brainiak.instagram.R;
 import com.brainiak.instagram.helper.ConfiguracaoFirebase;
+import com.brainiak.instagram.helper.UsuarioFirebase;
 import com.brainiak.instagram.model.Usuario;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -84,7 +85,7 @@ public class CadastroActivity extends AppCompatActivity {
         campoNome.requestFocus();
     }
 
-    public void cadastrarUsuario(Usuario usuario){
+    public void cadastrarUsuario(final Usuario usuario){
 
         progressBar.setVisibility(View.VISIBLE);
 
@@ -98,11 +99,29 @@ public class CadastroActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if( task.isSuccessful() ){
-                            progressBar.setVisibility(View.GONE);
-                            Toast.makeText(CadastroActivity.this, "Cadastro com sucesso ", Toast.LENGTH_SHORT).show();
 
-                            startActivity( new Intent(getApplicationContext(), MainActivity.class));
-                            finish();
+
+                            try{
+                                progressBar.setVisibility(View.GONE);
+
+                                //salvar os dados no firebase
+                                String idUsuario = task.getResult().getUser().getUid();
+                                usuario.setId(idUsuario);
+                                usuario.salvar();
+
+                                //salvar dados no profile Firebase
+                                UsuarioFirebase.atualizarNomeUsuario( usuario.getNome() );
+
+                                Toast.makeText(CadastroActivity.this, "Cadastro com sucesso ", Toast.LENGTH_SHORT).show();
+
+                                startActivity( new Intent(getApplicationContext(), MainActivity.class));
+                                finish();
+
+
+                            }catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
 
                         }else {
                             progressBar.setVisibility( View.GONE );

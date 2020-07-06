@@ -1,8 +1,6 @@
 package com.brainiak.instagram.fragment;
 
-import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -53,7 +51,7 @@ public class PerfilFragment extends Fragment {
          //Configurações dos componentes
         gridViewPerfil = view.findViewById(R.id.gridViewPerfil);
         progressBar = view.findViewById(R.id.progressBar);
-        imagePerfil = view.findViewById(R.id.imagePerfil);
+        imagePerfil = view.findViewById(R.id.imageEditarPerfil);
         textPublicacao = view.findViewById(R.id.textPublicacao);
         textSeguidores = view.findViewById(R.id.textSeguidores);
         textSeguindo = view.findViewById(R.id.textSeguidos);
