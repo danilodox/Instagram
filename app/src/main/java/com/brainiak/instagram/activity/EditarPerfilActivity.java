@@ -29,6 +29,9 @@ public class EditarPerfilActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editar_perfil);
 
+        //Configurações iniciais
+        usuarioLogado = UsuarioFirebase.getDadosUsuarioLogado();
+
         //Configura toolbar
         Toolbar toolbar = findViewById(R.id.toolbarPrincipal);
         toolbar.setTitle("Editar perfil");
@@ -53,6 +56,8 @@ public class EditarPerfilActivity extends AppCompatActivity {
                 UsuarioFirebase.atualizarNomeUsuario( nomeAtualizado );
 
                 //atualiza nome no banco de dados
+                usuarioLogado.setNome( nomeAtualizado );
+                usuarioLogado.atualizar();
 
             }
         });
