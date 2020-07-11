@@ -1,10 +1,12 @@
 package com.brainiak.instagram.activity;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
@@ -14,11 +16,19 @@ import android.widget.Toast;
 import android.widget.Toolbar;
 
 import com.brainiak.instagram.R;
+import com.brainiak.instagram.helper.ConfiguracaoFirebase;
 import com.brainiak.instagram.helper.UsuarioFirebase;
 import com.brainiak.instagram.model.Usuario;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 
 public class EditarPerfilActivity extends AppCompatActivity {
 
@@ -30,6 +40,8 @@ public class EditarPerfilActivity extends AppCompatActivity {
 
     private static final int SELECAO_GALERIA = 200;
 
+    private StorageReference storageRef;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +49,7 @@ public class EditarPerfilActivity extends AppCompatActivity {
 
         //Configurações iniciais
         usuarioLogado = UsuarioFirebase.getDadosUsuarioLogado();
+        storageRef = ConfiguracaoFirebase.getFirebaseStorage();
 
         //Configura toolbar
         Toolbar toolbar = findViewById(R.id.toolbarPrincipal);
@@ -83,30 +96,57 @@ public class EditarPerfilActivity extends AppCompatActivity {
             }
         });
 
+    }
 
-        @Override
-        protected void onActivityResult(int requestCode, int resultCode, Intent data){
-            super.onActivityResult(requestCode, resultCode, data);
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
 
-            if ( resultCode == RESULT_OK ){
-                Bitmap imagem = null;
-                try{
-                    //selecao apenas da galeria
-                    switch ( requestCode){
-                        case SELECAO_GALERIA:
-                            Uri = localImagemSelecionada = data.getData();
-                            imagem = MediaStore.Images.Media.getBitmap(getContentResolver(), localImagemSelecionada);
-                            break;
-                    }
-
-                    //caso tenha sido escolhido uma imagem
-
-                }catch (Exception e){
-                    e.printStackTrace();
+        if ( resultCode == RESULT_OK ){
+            Bitmap imagem = null;
+            try{
+                //selecao apenas da galeria
+                switch ( requestCode){
+                    case SELECAO_GALERIA:
+                        Uri localImagemSelecionada = data.getData();
+                        imagem = MediaStore.Images.Media.getBitmap(getContentResolver(), localImagemSelecionada);
+                        break;
                 }
+
+                //caso tenha sido escolhido uma imagem
+                if (imagem != null){
+                    //Configura imagem na tela
+                    imageEditarPerfil.setImageBitmap( imagem );
+
+                    //Recuperar dados da imagem para o firebase
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    imagem.compress(Bitmap.CompressFormat.JPEG, 70, baos);
+                    byte[] dadosImagem = baos.toByteArray();
+
+
+                    //Salvar imagem no firebase
+                    StorageReference imagemRef = storageRef
+                            .child("imagens")
+                            .child("perfil")
+                            .child("<id-usuario>.jpeg");
+                    UploadTask uploadTask = imagemRef.putBytes( dadosImagem );
+                    uploadTask.addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(EditarPerfilActivity.this, "Erro ao fazer upload da imagem", Toast.LENGTH_SHORT).show();
+                        }
+                    }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            Toast.makeText(EditarPerfilActivity.this, "Sucesso ao fazer upload da imagem", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+
+            }catch (Exception e){
+                e.printStackTrace();
             }
         }
-
     }
 
     public void inicializarComponentes(){
