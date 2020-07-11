@@ -19,8 +19,11 @@ import com.brainiak.instagram.R;
 import com.brainiak.instagram.helper.ConfiguracaoFirebase;
 import com.brainiak.instagram.helper.UsuarioFirebase;
 import com.brainiak.instagram.model.Usuario;
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -37,6 +40,7 @@ public class EditarPerfilActivity extends AppCompatActivity {
     private TextInputEditText editNomePerfil, editEmailPerfil;
     private Button buttonSalvarAlteracoes;
     private Usuario usuarioLogado;
+    private String identificadorUsuario;
 
     private static final int SELECAO_GALERIA = 200;
 
@@ -50,6 +54,7 @@ public class EditarPerfilActivity extends AppCompatActivity {
         //Configurações iniciais
         usuarioLogado = UsuarioFirebase.getDadosUsuarioLogado();
         storageRef = ConfiguracaoFirebase.getFirebaseStorage();
+        identificadorUsuario = UsuarioFirebase.getIdentificadorUsuario();
 
         //Configura toolbar
         Toolbar toolbar = findViewById(R.id.toolbarPrincipal);
@@ -64,6 +69,13 @@ public class EditarPerfilActivity extends AppCompatActivity {
         FirebaseUser usuarioPerfil = UsuarioFirebase.getUsuarioAtual();
         editNomePerfil.setText( usuarioPerfil.getDisplayName() );
         editEmailPerfil.setText( usuarioPerfil.getEmail() );
+
+        Uri url = usuarioPerfil.getPhotoUrl();
+        if( url != null){
+            Glide.with(EditarPerfilActivity.this).load( url ).into( imageEditarPerfil );
+        }else{
+            imageEditarPerfil.setImageResource(R.drawable.avatar);
+        }
 
         //salvar alterações do nome
         buttonSalvarAlteracoes.setOnClickListener(new View.OnClickListener() {
@@ -125,10 +137,10 @@ public class EditarPerfilActivity extends AppCompatActivity {
 
 
                     //Salvar imagem no firebase
-                    StorageReference imagemRef = storageRef
+                    final StorageReference imagemRef = storageRef
                             .child("imagens")
                             .child("perfil")
-                            .child("<id-usuario>.jpeg");
+                            .child(identificadorUsuario + ".jpeg");
                     UploadTask uploadTask = imagemRef.putBytes( dadosImagem );
                     uploadTask.addOnFailureListener(new OnFailureListener() {
                         @Override
@@ -138,6 +150,24 @@ public class EditarPerfilActivity extends AppCompatActivity {
                     }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            //Recuperar local da foto
+
+                            //Em versoes anteriores usava:
+                            //taskSnapshot.getDownloadUrl();
+
+                            //Agora usa assim:
+                            imagemRef.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Uri> task) {
+                                    Uri url = task.getResult();
+                                    atualizarFotoUsuario( url );
+                                }
+                            });
+
+
+
+
+
                             Toast.makeText(EditarPerfilActivity.this, "Sucesso ao fazer upload da imagem", Toast.LENGTH_SHORT).show();
                         }
                     });
@@ -147,6 +177,20 @@ public class EditarPerfilActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+    }
+
+
+    private void atualizarFotoUsuario(Uri url){
+        //Atualizar foto no perfil
+        UsuarioFirebase.atualizarFotoUsuario( url );
+        //Atualizar foto no firebase
+        usuarioLogado.setCaminhoFoto( url.toString() );
+        usuarioLogado.atualizar();
+
+        Toast.makeText(EditarPerfilActivity.this, "Sua foto foi atualizada!", Toast.LENGTH_SHORT).show();
+
+
+
     }
 
     public void inicializarComponentes(){
