@@ -1,8 +1,15 @@
 package com.brainiak.instagram.adapter;
 
+import android.content.Context;
+import android.net.Uri;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import com.brainiak.instagram.R;
+import com.brainiak.instagram.model.Usuario;
+import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
@@ -25,17 +32,31 @@ public class AdapterPesquisa extends RecyclerView.Adapter<AdapterPesquisa.MyView
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return null;
+
+        View itemLista = LayoutInflater.from(parent.getContext()).inflate(R.layout.adapter_pesquisa_usuario, parent, false);
+
+
+        return new MyViewHolder(itemLista);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+        Usuario usuario = listaUsuario.get(position);
 
+        holder.nome.setText( usuario.getNome());
+
+        if(usuario.getCaminhoFoto() != null){
+            Uri uri = Uri.parse( usuario.getCaminhoFoto());
+            Glide.with(context).load(uri).into(holder.foto);
+
+        }else{
+            holder.foto.setImageResource(R.drawable.avatar);
+        }
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return listaUsuario.size();
     }
 
 
@@ -48,6 +69,10 @@ public class AdapterPesquisa extends RecyclerView.Adapter<AdapterPesquisa.MyView
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);
+
+            foto = itemView.findViewById(R.id.imageFotoPesquisa);
+            nome = itemView.findViewById(R.id.textNomePesquisa);
+
         }
     }
 }

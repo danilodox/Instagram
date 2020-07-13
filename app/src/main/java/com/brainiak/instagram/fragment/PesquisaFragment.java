@@ -16,6 +16,7 @@ import android.widget.SearchView;
 import com.brainiak.instagram.R;
 import com.brainiak.instagram.adapter.AdapterPesquisa;
 import com.brainiak.instagram.helper.ConfiguracaoFirebase;
+import com.brainiak.instagram.model.Usuario;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -63,6 +64,7 @@ private AdapterPesquisa adapterPesquisa;
         recyclerViewPesquisa.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         adapterPesquisa = new AdapterPesquisa(listaUsuarios, getActivity());
+        recyclerViewPesquisa.setAdapter(adapterPesquisa);
 
 
 
@@ -99,7 +101,7 @@ private AdapterPesquisa adapterPesquisa;
         // minusculas. Pra quando for filtrar com a queue não der problema
 
         //Pesquisa usuarios caso tenha texto na pesquisa
-        if( str.length() > 0){
+        if( str.length() >= 2){
 
             Query query = usuariosRef.orderByChild("nome")
                     .startAt(str)
@@ -108,6 +110,8 @@ private AdapterPesquisa adapterPesquisa;
             query.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                    listaUsuarios.clear();
                     for( DataSnapshot ds : dataSnapshot.getChildren() ){
                         listaUsuarios.add(ds.getValue(Usuario.class));
                     }
@@ -117,6 +121,8 @@ private AdapterPesquisa adapterPesquisa;
                     int total = listaUsuarios.size();
                     Log.i("totalUsuarios", "total: " + total);
                      */
+
+                    adapterPesquisa.notifyDataSetChanged();
                 }
 
                 @Override
