@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
@@ -13,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.SearchView;
 
 import com.brainiak.instagram.R;
+import com.brainiak.instagram.adapter.AdapterPesquisa;
 import com.brainiak.instagram.helper.ConfiguracaoFirebase;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -32,6 +34,8 @@ private SearchView searchViewPesquisa;
 private RecyclerView recyclerViewPesquisa;
 private ArrayList<Usuario> listaUsuarios;
 private DatabaseReference usuariosRef;
+private AdapterPesquisa adapterPesquisa;
+
 
     public PesquisaFragment() {
         // Required empty public constructor
@@ -53,6 +57,14 @@ private DatabaseReference usuariosRef;
        listaUsuarios = new ArrayList<Usuario>();
        usuariosRef = ConfiguracaoFirebase.getFirebase()
                         .child( "usuarios" );
+
+        //Configura recyclerView
+        recyclerViewPesquisa.setHasFixedSize(true);
+        recyclerViewPesquisa.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        adapterPesquisa = new AdapterPesquisa(listaUsuarios, getActivity());
+
+
 
 
         //Configura searchView
@@ -100,7 +112,11 @@ private DatabaseReference usuariosRef;
                         listaUsuarios.add(ds.getValue(Usuario.class));
                     }
 
+                    /*
+
                     int total = listaUsuarios.size();
+                    Log.i("totalUsuarios", "total: " + total);
+                     */
                 }
 
                 @Override
