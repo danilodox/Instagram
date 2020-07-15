@@ -42,6 +42,7 @@ private DatabaseReference usuariosRef;
 private AdapterPesquisa adapterPesquisa;
 
 
+
     public PesquisaFragment() {
         // Required empty public constructor
     }
