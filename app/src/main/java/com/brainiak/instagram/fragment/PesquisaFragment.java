@@ -1,6 +1,7 @@
 package com.brainiak.instagram.fragment;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -11,11 +12,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.SearchView;
 
 import com.brainiak.instagram.R;
+import com.brainiak.instagram.activity.PerfilAmigoActivity;
 import com.brainiak.instagram.adapter.AdapterPesquisa;
 import com.brainiak.instagram.helper.ConfiguracaoFirebase;
+import com.brainiak.instagram.helper.RecyclerItemClickListener;
 import com.brainiak.instagram.model.Usuario;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -59,6 +63,9 @@ private AdapterPesquisa adapterPesquisa;
        usuariosRef = ConfiguracaoFirebase.getFirebase()
                         .child( "usuarios" );
 
+
+
+
         //Configura recyclerView
         recyclerViewPesquisa.setHasFixedSize(true);
         recyclerViewPesquisa.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -67,6 +74,30 @@ private AdapterPesquisa adapterPesquisa;
         recyclerViewPesquisa.setAdapter(adapterPesquisa);
 
 
+        //Configura searchView
+        recyclerViewPesquisa.addOnItemTouchListener(new RecyclerItemClickListener(
+                getActivity(),
+                recyclerViewPesquisa,
+                new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
+                        Usuario usuarioSelecionado = listaUsuarios.get(position);
+                        Intent i = new Intent(getActivity(), PerfilAmigoActivity.class);
+                        i.putExtra("usuarioSelecionado", usuarioSelecionado);
+                        startActivity( i );
+                    }
+
+                    @Override
+                    public void onLongItemClick(View view, int position) {
+
+                    }
+
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                    }
+                }
+        ));
 
 
         //Configura searchView
