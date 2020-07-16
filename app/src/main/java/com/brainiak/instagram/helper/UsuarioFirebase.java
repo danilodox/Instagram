@@ -81,6 +81,7 @@ public class UsuarioFirebase {
         usuario.setNome( firebaseUser.getDisplayName() );
         usuario.setId( firebaseUser.getUid() );
 
+
         if( firebaseUser.getPhotoUrl() == null ){
             usuario.setCaminhoFoto("");
         }else{

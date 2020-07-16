@@ -7,6 +7,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toolbar;
@@ -21,9 +22,12 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
+
 public class PerfilAmigoActivity extends AppCompatActivity {
 
     private Usuario usuarioSelecionado;
+    private Usuario usuarioLogado;
     private Button buttonAcaoPerfil;
     private CircleImageView imagePerfil;
     private DatabaseReference usuariosRef;
@@ -31,6 +35,7 @@ public class PerfilAmigoActivity extends AppCompatActivity {
     private DatabaseReference seguidoresRef;
     private DatabaseReference fireBaseRef;
     private ValueEventListener valueEventListenerPerfilAmigo;
+    private DatabaseReference usuarioLogadoRef;
     private String idUsuarioLogado;
     private TextView textPublicacao, textSeguidores, textSeguindo;
 
@@ -75,9 +80,30 @@ public class PerfilAmigoActivity extends AppCompatActivity {
             }
         }
 
-    verificaSegueUsuarioAmigo();
 
 
+
+    }
+
+    private void recuperarDadosUsuarioLogado(){
+        usuarioLogadoRef = usuariosRef.child( idUsuarioLogado );
+        usuarioLogadoRef.addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        //Recupera dados do usuario logado
+                        usuarioLogado = dataSnapshot.getValue( Usuario.class);
+
+                        //verifica se o usuario já está seguindo amigo selecionado
+                        verificaSegueUsuarioAmigo();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                }
+        );
     }
 
     private void verificaSegueUsuarioAmigo(){
@@ -110,11 +136,11 @@ public class PerfilAmigoActivity extends AppCompatActivity {
 
     private void inicializarComponentes(){
         buttonAcaoPerfil = findViewById(R.id.buttonAcaoPerfil);
-        buttonAcaoPerfil.setText("Seguir");
         textPublicacao = findViewById(R.id.textPublicacao);
         textSeguidores = findViewById(R.id.textSeguidores);
         textSeguindo = findViewById(R.id.textSeguidos);
         imagePerfil = findViewById(R.id.imageEditarPerfil);
+        buttonAcaoPerfil.setText("Carregando");
     }
 
     private void habilitarBotaoSeguir(boolean segueUsuario){
@@ -123,20 +149,50 @@ public class PerfilAmigoActivity extends AppCompatActivity {
             buttonAcaoPerfil.setText("Seguindo");
 
         }else{
-            
+
             buttonAcaoPerfil.setText("Seguir");
+            //adiciona evento para seguir usuario
+            buttonAcaoPerfil.setOnClickListener(
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            //salvar Seguidor
+                            salvarSeguidor(usuarioLogado, usuarioSelecionado);
+                        }
+                    }
+            );
+
         }
+    }
+
+    private void salvarSeguidor(Usuario uLogado, Usuario uAmigo){
+
+        HashMap<String, Object> dadosAmigo = new HashMap<>();
+        dadosAmigo.put("nome", uAmigo.getNome());
+        dadosAmigo.put("caminhoFoto", uAmigo.getCaminhoFoto());
+        DatabaseReference seguidorRef = seguidoresRef
+                .child( uLogado.getId() )
+                .child( uAmigo.getId() );
+        seguidorRef.setValue( dadosAmigo );
+
+        //alterar botao para seguindo
+        buttonAcaoPerfil.setText("Seguindo");
+        buttonAcaoPerfil.setOnClickListener( null );
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         recuperarDadosPerfilAmigo();
+
+        //recuperar dados usuario logado
+        recuperarDadosUsuarioLogado();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        usuarioAmigoRef.removeEventListener( valueEventListenerPerfilAmigo);
     }
 
     private void recuperarDadosPerfilAmigo(){
