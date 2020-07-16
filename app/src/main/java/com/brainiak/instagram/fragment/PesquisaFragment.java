@@ -20,6 +20,7 @@ import com.brainiak.instagram.activity.PerfilAmigoActivity;
 import com.brainiak.instagram.adapter.AdapterPesquisa;
 import com.brainiak.instagram.helper.ConfiguracaoFirebase;
 import com.brainiak.instagram.helper.RecyclerItemClickListener;
+import com.brainiak.instagram.helper.UsuarioFirebase;
 import com.brainiak.instagram.model.Usuario;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -40,6 +41,7 @@ private RecyclerView recyclerViewPesquisa;
 private ArrayList<Usuario> listaUsuarios;
 private DatabaseReference usuariosRef;
 private AdapterPesquisa adapterPesquisa;
+private String idUsuarioLogado;
 
 
 
@@ -63,6 +65,8 @@ private AdapterPesquisa adapterPesquisa;
        listaUsuarios = new ArrayList<Usuario>();
        usuariosRef = ConfiguracaoFirebase.getFirebase()
                         .child( "usuarios" );
+
+       idUsuarioLogado = UsuarioFirebase.getIdentificadorUsuario();
 
 
 
@@ -145,7 +149,14 @@ private AdapterPesquisa adapterPesquisa;
 
                     listaUsuarios.clear();
                     for( DataSnapshot ds : dataSnapshot.getChildren() ){
-                        listaUsuarios.add(ds.getValue(Usuario.class));
+
+                        //Verifica se é usuario logado e remove da lista
+                        Usuario usuario = ds.getValue(Usuario.class);
+                        if( idUsuarioLogado.equals( usuario.getId() ))
+                            continue;
+
+                        //add usuario na lista
+                        listaUsuarios.add(usuario);
                     }
 
                     /*
