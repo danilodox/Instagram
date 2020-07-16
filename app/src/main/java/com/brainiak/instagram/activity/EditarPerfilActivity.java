@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import android.Manifest;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -17,6 +18,7 @@ import android.widget.Toolbar;
 
 import com.brainiak.instagram.R;
 import com.brainiak.instagram.helper.ConfiguracaoFirebase;
+import com.brainiak.instagram.helper.Permissao;
 import com.brainiak.instagram.helper.UsuarioFirebase;
 import com.brainiak.instagram.model.Usuario;
 import com.bumptech.glide.Glide;
@@ -46,6 +48,10 @@ public class EditarPerfilActivity extends AppCompatActivity {
 
     private StorageReference storageRef;
 
+    private String[] permissoesNecessarias = new String[] {
+            Manifest.permission.READ_EXTERNAL_STORAGE
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +61,9 @@ public class EditarPerfilActivity extends AppCompatActivity {
         usuarioLogado = UsuarioFirebase.getDadosUsuarioLogado();
         storageRef = ConfiguracaoFirebase.getFirebaseStorage();
         identificadorUsuario = UsuarioFirebase.getIdentificadorUsuario();
+
+        //Validar permissoes
+        Permissao.validarPermissoes(permissoesNecessarias, this, 1);
 
         //Configura toolbar
         Toolbar toolbar = findViewById(R.id.toolbarPrincipal);

@@ -1,6 +1,7 @@
 package com.brainiak.instagram.fragment;
 
 
+import android.Manifest;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -13,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.brainiak.instagram.R;
+import com.brainiak.instagram.helper.Permissao;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -21,6 +23,9 @@ public class PostagemFragment extends Fragment {
     private Button buttonAbrirGaleria, buttonAbrirCamera;
     private static final int SELECAO_CAMERA = 100, SELECAO_GALERIA = 200;
 
+    private String[] permissoesNecessarias = new String[] {
+            Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.CAMERA
+    };
     public PostagemFragment() {
         // Required empty public constructor
     }
@@ -31,6 +36,9 @@ public class PostagemFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_postagem, container, false);
+
+        //Validar permissoes
+        Permissao.validarPermissoes(permissoesNecessarias, getActivity(), 1);
 
         //inicializar componentes
         buttonAbrirCamera = view.findViewById(R.id.buttonAbrirCamera);
