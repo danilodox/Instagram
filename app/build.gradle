@@ -48,4 +48,7 @@ dependencies {
 
     // FirebaseUI Storage only
     implementation 'com.firebaseui:firebase-ui-storage:6.2.0'
+
+    //AndroidPhotoFilter
+    implementation 'info.androidhive:imagefilters:1.0.7'
 }
