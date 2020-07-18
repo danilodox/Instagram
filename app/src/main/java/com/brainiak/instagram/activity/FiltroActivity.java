@@ -1,11 +1,13 @@
 package com.brainiak.instagram.activity;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -13,18 +15,32 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.Toast;
 import android.widget.Toolbar;
 
 import com.brainiak.instagram.R;
 import com.brainiak.instagram.adapter.AdapterMiniaturas;
+import com.brainiak.instagram.helper.ConfiguracaoFirebase;
 import com.brainiak.instagram.helper.RecyclerItemClickListener;
+import com.brainiak.instagram.helper.UsuarioFirebase;
+import com.brainiak.instagram.model.Postagem;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.zomato.photofilters.FilterPack;
 import com.zomato.photofilters.imageprocessors.Filter;
 import com.zomato.photofilters.utils.ThumbnailItem;
 import com.zomato.photofilters.utils.ThumbnailsManager;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.brainiak.instagram.helper.UsuarioFirebase.atualizarFotoUsuario;
 
 public class FiltroActivity extends AppCompatActivity {
 
@@ -35,9 +51,11 @@ public class FiltroActivity extends AppCompatActivity {
 
     private ImageView imageFotoEscolhida;
     private Bitmap image, imageFiltro;
+    private TextInputEditText textDescricaoFiltro;
     private List<ThumbnailItem> listaFiltros;
     private RecyclerView recyclerFilters;
     private AdapterMiniaturas adapterMiniaturas;
+    private String idUsuarioLogado;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,10 +64,13 @@ public class FiltroActivity extends AppCompatActivity {
 
         //Configuracoes iniciais
         listaFiltros = new ArrayList<>();
+        idUsuarioLogado = UsuarioFirebase.getIdentificadorUsuario();
+        imageFiltro = image.copy(image.getConfig(), true);
 
         //inicializando componentes
         imageFotoEscolhida = findViewById(R.id.imageFotoEscolhida);
         recyclerFilters = findViewById(R.id.recyclerViewPesquisa);
+        textDescricaoFiltro = findViewById(R.id.textDescricaoFiltro);
 
         //Configura toolbar
         Toolbar toolbar = findViewById(R.id.toolbarPrincipal);
@@ -63,6 +84,7 @@ public class FiltroActivity extends AppCompatActivity {
             byte[] dadosImagem = bundle.getByteArray("fotoEscolhida");
             image = BitmapFactory.decodeByteArray(dadosImagem, 0, dadosImagem.length);
             imageFotoEscolhida.setImageBitmap( image);
+            imageFiltro = image.copy(image.getConfig(), true);
 
 
             //Configura recyclerView de filtros
@@ -78,7 +100,7 @@ public class FiltroActivity extends AppCompatActivity {
 
                     ThumbnailItem item = listaFiltros.get(position);
 
-                    imageFiltro = image.copy(image.getConfig(), true);
+
                     Filter filter = item.filter;
                     imageFotoEscolhida.setImageBitmap( filter.processFilter( imageFiltro));
                 }
@@ -141,6 +163,7 @@ public class FiltroActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.ic_salvar_postagem:
+                publicarPostagem();
             break;
         }
 
@@ -152,5 +175,54 @@ public class FiltroActivity extends AppCompatActivity {
         finish();
         return false;
 
+    }
+
+    private void publicarPostagem(){
+        final Postagem postagem = new Postagem();
+        postagem.setIdUsuario( idUsuarioLogado );
+        postagem.setDescricao( textDescricaoFiltro.getText().toString());
+
+        //Recuperar dados da imagem para o firebase
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        imageFiltro.compress(Bitmap.CompressFormat.JPEG, 70, baos);
+        byte[] dadosImagem = baos.toByteArray();
+
+        //Salvar imagem no firebase store
+        StorageReference storageRef = ConfiguracaoFirebase.getFirebaseStorage();
+        final StorageReference imageRef = storageRef
+                .child("imagens")
+                .child("postagens")
+                .child(postagem.getId() + "jpeg");
+
+        UploadTask uploadTask = imageRef.putBytes( dadosImagem );
+        uploadTask.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(FiltroActivity.this, "Erro ao salvar imagem, tente novamente", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                //Recuperar local da foto
+
+                //Em versoes anteriores usava:
+                //taskSnapshot.getDownloadUrl();
+
+                //Agora usa assim:
+                imageRef.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Uri> task) {
+                        Uri url = task.getResult();
+                        postagem.setCaminhoFoto( url.toString() );
+                    }
+                });
+
+                if( postagem.salvar() ){
+                    Toast.makeText(FiltroActivity.this, "Sucesso ao salvar postagem", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+
+            }
+        });
     }
 }

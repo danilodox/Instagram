@@ -38,6 +38,7 @@ public class PerfilAmigoActivity extends AppCompatActivity {
     private DatabaseReference usuarioLogadoRef;
     private String idUsuarioLogado;
     private TextView textPublicacao, textSeguidores, textSeguindo;
+    private DatabaseReference postagensUsuarioRef;
 
 
     @Override
@@ -65,6 +66,11 @@ public class PerfilAmigoActivity extends AppCompatActivity {
         if( bundle != null){
             usuarioSelecionado = (Usuario) bundle.getSerializable("usuarioSelecionado");
 
+            //Configura referencia postagens usuario
+            postagensUsuarioRef = ConfiguracaoFirebase.getFirebase()
+                    .child("postagens")
+                    .child( usuarioSelecionado.getId() );
+
             //Configura o nome do usuario na toolbar
             getSupportActionBar().setTitle( usuarioSelecionado.getNome());
 
@@ -83,6 +89,21 @@ public class PerfilAmigoActivity extends AppCompatActivity {
 
 
 
+    }
+
+    public void carregarFotoPostagem(){
+        //Recupera as fotos postadas pelo usuario
+        postagensUsuarioRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     private void recuperarDadosUsuarioLogado(){
