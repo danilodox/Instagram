@@ -15,6 +15,7 @@ import android.widget.Toolbar;
 import com.brainiak.instagram.R;
 import com.brainiak.instagram.helper.ConfiguracaoFirebase;
 import com.brainiak.instagram.helper.UsuarioFirebase;
+import com.brainiak.instagram.model.Postagem;
 import com.brainiak.instagram.model.Usuario;
 import com.bumptech.glide.Glide;
 import com.google.firebase.database.DataSnapshot;
@@ -22,7 +23,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class PerfilAmigoActivity extends AppCompatActivity {
 
@@ -86,17 +89,27 @@ public class PerfilAmigoActivity extends AppCompatActivity {
             }
         }
 
-
+    //Carrega as fotos das postagens de um usuario
+        carregarFotoPostagem();
 
 
     }
 
     public void carregarFotoPostagem(){
+
         //Recupera as fotos postadas pelo usuario
         postagensUsuarioRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
+                List<String> urlFotos = new ArrayList<>();
+
+                for(DataSnapshot ds: dataSnapshot.getChildren()){
+                    Postagem postagem = ds.getValue( Postagem.class );
+                    urlFotos.add( postagem.getCaminhoFoto() );
+
+                }
+                textPublicacao.setText( String.valueOf( urlFotos.size() ) );
             }
 
             @Override
@@ -243,12 +256,12 @@ public class PerfilAmigoActivity extends AppCompatActivity {
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         Usuario usuario = dataSnapshot.getValue( Usuario.class );
 
-                        String postagens = String.valueOf( usuario.getPostagens());
+                        //String postagens = String.valueOf( usuario.getPostagens());
                         String seguindo = String.valueOf( usuario.getSeguindo());
                         String seguidores = String.valueOf( usuario.getSeguidores());
 
                         //Configura valores recuperados
-                        textPublicacao.setText( postagens );
+                       // textPublicacao.setText( postagens );
                         textSeguidores.setText( seguidores );
                         textSeguindo.setText( seguindo );
                     }
